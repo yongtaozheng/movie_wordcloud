@@ -46,10 +46,11 @@ CONFIG = {
     # 多电影配置（豆瓣ID: 电影名称）
     'movies': {
         '30181250': '封神第二部：战火西岐',
-        # '36282639': '唐探1900',
-        # '34780991': '哪吒之魔童闹海',
-        # '36289423': '射雕英雄传：侠之大者',
-        # '35295960': '蛟龙行动',
+        '36282639': '唐探1900',
+        '34780991': '哪吒之魔童闹海',
+        '36289423': '射雕英雄传：侠之大者',
+        '35295960': '蛟龙行动',
+        '36970301':'熊出没·重启未来',
     },
     'output_dir': './reports',  # 输出目录
     'page_limit': 5,  # 每部电影抓取页数
@@ -116,7 +117,6 @@ class MovieAnalyzer:
                                         movie_id, page)
                     )
                     time.sleep(random.uniform(0.5, 1.5))
-
                 for future in futures:
                     all_comments.extend(future.result())
 
@@ -132,14 +132,17 @@ class MovieAnalyzer:
         """单页评论抓取"""
         try:
             url = f'https://movie.douban.com/subject/{movie_id}/comments?start={page * 20}'
+            print('url:',url)
             resp = requests.get(url, headers=self.get_headers(),
                                 proxies={'http': self.get_proxy()}, timeout=10)
             soup = BeautifulSoup(resp.text, 'html.parser')
             comments = [self._clean_text(span.get_text())
                         for span in soup.select('span.short')]
             time.sleep(random.uniform(1, 3))
+            print('获取第',page + 1,'页评论成功')
             return comments
-        except:
+        except Exception as e:
+            print('获取第',page + 1 ,'页评论出错:', e)
             return []
 
     def _clean_text(self, text):
